@@ -2,7 +2,25 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
+        <q-btn
+          v-if="$route.fullPath.includes('/chat')"
+          v-go-back.single
+          icon="arrow_back"
+          label="Voltar"
+          flat
+          dense
+        />
         <q-toolbar-title class="absolute-center"> {{ getTitle }} </q-toolbar-title>
+
+        <q-btn
+          to="/auth"
+          class="absolute-right"
+          icon="account_circle"
+          no-caps
+          flat
+          dense
+          label="Login"
+        />
       </q-toolbar>
     </q-header>
 
