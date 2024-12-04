@@ -1,11 +1,69 @@
 <template>
-  <q-page class="flex">
-    <h5>Chat</h5>
+  <q-page class="flex column">
+    <q-banner class="text-white bg-grey-4 text-center"> Usuário Offline. </q-banner>
+    <div class="q-pa-md column col justify-end">
+      <q-chat-message
+        v-for="mensagem in mensagens"
+        :key="mensagem.texto"
+        :name="mensagem.from"
+        :text="[mensagem.texto]"
+        :sent="mensagem.from === 'me'"
+      />
+    </div>
+    <q-footer class="q-pa-sm" elevated>
+      <q-form>
+        <q-input
+          v-model="novaMensagem"
+          bg-color="white"
+          class="full-width"
+          outlined
+          rounded
+          label="Mensagem"
+          dense
+        >
+          <template v-slot:after>
+            <q-btn @click="enviarMensagem" round dense flat color="white" icon="send" />
+          </template>
+        </q-input>
+      </q-form>
+    </q-footer>
   </q-page>
 </template>
 
-<script setup lang="ts">
-defineOptions({
-  name: 'PaginaChat',
+<script lang="ts">
+import { defineComponent, shallowRef } from 'vue'
+
+export default defineComponent({
+  name: 'ChatComponent',
+
+  data() {
+    return {
+      novaMensagem: shallowRef<string>(''),
+      mensagens: [
+        {
+          texto: 'Bom dia! Tudo bem?',
+          from: 'me',
+        },
+        {
+          texto: 'Tudo bem e voce?',
+          from: 'them',
+        },
+        {
+          texto: 'Eu estou bem',
+          from: 'me',
+        },
+      ],
+    }
+  },
+
+  methods: {
+    enviarMensagem() {
+      console.log('Mensagem enviada:', this.novaMensagem)
+      this.mensagens.push({
+        texto: this.novaMensagem,
+        from: 'me',
+      })
+    },
+  },
 })
 </script>
