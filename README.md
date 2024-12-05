@@ -9,7 +9,7 @@ Também utilizei:
 
 # Instruções para rodar o projeto local:
 
-  1 - Clonar o projeto
-  2 - Acessar a pasta do projeto com o terminal
-  3 - Rodar o comando 'npm install' para baixar as dependências
-  4 - Rodar o comando 'npm run dev' para inicializar a aplicação
+  <p>1 - Clonar o projeto</p>
+  <p>2 - Acessar a pasta do projeto com o terminal</p>
+  <p>3 - Rodar o comando 'npm install' para baixar as dependências</p>
+  <p>4 - Rodar o comando 'npm run dev' para inicializar a aplicação</p>
