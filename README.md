@@ -2,42 +2,14 @@
 
 Chat construído com Vue 3 e Quasar Framework.
 
-## Install the dependencies
+Também utilizei:
 
-```bash
-yarn
-# or
-npm install
-```
+- Pinia Store
+- Firebase
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+# Instruções para rodar o projeto local:
 
-```bash
-quasar dev
-```
-
-### Lint the files
-
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-### Format the files
-
-```bash
-yarn format
-# or
-npm run format
-```
-
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+  1 - Clonar o projeto
+  2 - Acessar a pasta do projeto com o terminal
+  3 - Rodar o comando 'npm install' para baixar as dependências
+  4 - Rodar o comando 'npm run dev' para inicializar a aplicação
