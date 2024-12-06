@@ -63,7 +63,7 @@ export default defineComponent({
       if (this.tab === 'cadastro') {
         this.storeChatInstance.registrarUsuario(this.formulario)
       } else {
-        this.storeChatInstance.loginUsuario()
+        this.storeChatInstance.loginUsuario(this.formulario)
       }
     },
 

@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('src/pages/Usuario.vue') },
-      { path: 'chat', component: () => import('src/pages/Chat.vue') },
+      { path: 'chat/:idOutroUsuario', component: () => import('src/pages/Chat.vue') },
       { path: 'auth', component: () => import('src/pages/Auth.vue') },
     ],
   },

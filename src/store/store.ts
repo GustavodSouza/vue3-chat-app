@@ -1,27 +1,59 @@
 import { defineStore } from 'pinia'
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
-import { getDatabase, ref, set } from 'firebase/database'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { getDatabase, ref, set, get, update, onValue } from 'firebase/database'
+import { useRouter } from 'vue-router'
 
 interface UsuarioInterface {
   nome: string
   email: string
   senha: string
+  userId: string
+}
+
+interface UserDetails {
+  name?: string
+  email?: string
+  userId?: string
+  online?: string
+}
+
+interface StateInterface {
+  userDetails: UserDetails
+  users: Array<UserDetails>
+  messages: Array<UserDetails>
 }
 
 export const storeChat = defineStore('store', {
-  state: () => ({}),
-  getters: {},
+  state: (): StateInterface => ({
+    userDetails: {},
+    users: [],
+    messages: [],
+  }),
+  getters: {
+    getUsuarios() {
+      const usuariosFiltrados = {}
+
+      Object.keys(this.users).forEach((key) => {
+        if (key !== this.userDetails.userId) {
+          usuariosFiltrados[key] = this.users[key]
+        }
+      })
+
+      return usuariosFiltrados
+    },
+
+    getMensagens() {
+      return this.messages
+    },
+  },
   actions: {
     registrarUsuario(novoUsuario: UsuarioInterface) {
       const auth = getAuth()
-
-      // Inicialize o Firebase Auth e o Firebase Database
-      const firebaseAuth = getAuth()
       const firebaseDb = getDatabase()
 
       createUserWithEmailAndPassword(auth, novoUsuario.email, novoUsuario.senha)
         .then(() => {
-          const user = firebaseAuth.currentUser
+          const user = auth.currentUser
 
           if (user) {
             const userId = user.uid
@@ -42,8 +74,98 @@ export const storeChat = defineStore('store', {
         })
     },
 
-    loginUsuario() {
-      console.log('Login Usuario')
+    loginUsuario(novoUsuario: UsuarioInterface) {
+      const auth = getAuth()
+
+      signInWithEmailAndPassword(auth, novoUsuario.email, novoUsuario.senha)
+        .then((response) => {
+          console.log('Usuário Logado: ', response)
+        })
+        .catch((error) => {
+          console.log('Error', error)
+        })
+    },
+
+    mudarStadoAutenticacao() {
+      const router = useRouter()
+      const auth = getAuth()
+      const firebaseDb = getDatabase()
+
+      auth.onAuthStateChanged((userResponse) => {
+        // debugger
+        if (userResponse) {
+          const currentUser = auth.currentUser
+
+          if (currentUser) {
+            const userId = currentUser.uid
+
+            const userRef = ref(firebaseDb, 'users/' + userId)
+
+            get(userRef).then((snapshot) => {
+              if (snapshot.exists()) {
+                const userDetails = snapshot.val()
+
+                this.setDetalhesUsuario({
+                  name: userDetails.name,
+                  email: userDetails.email,
+                  userId: userId,
+                })
+
+                update(userRef, {
+                  online: true,
+                })
+                router.push('/')
+              }
+            })
+          }
+        } else {
+          if (this.userDetails.userId) {
+            const userRef = ref(firebaseDb, 'users/' + this.userDetails.userId)
+
+            update(userRef, {
+              online: false,
+            })
+
+            this.setDetalhesUsuario({})
+          }
+          router.replace('/auth')
+        }
+      })
+    },
+
+    buscarTodosUsuários() {
+      const firebaseDb = getDatabase()
+      const userRef = ref(firebaseDb, 'users/')
+
+      onValue(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const userDetails = snapshot.val()
+          this.users = userDetails
+        }
+      })
+    },
+
+    buscarMensagens(idOutroUsuario: string) {
+      const userId = this.userDetails.userId
+      const firebaseDb = getDatabase()
+
+      const userRef = ref(firebaseDb, 'chats/' + userId + '/' + idOutroUsuario)
+
+      onValue(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const userMessages = snapshot.val()
+          this.messages = userMessages
+        }
+      })
+    },
+
+    setDetalhesUsuario(payload) {
+      this.userDetails = payload
+    },
+
+    sair() {
+      const auth = getAuth()
+      auth.signOut()
     },
   },
 })

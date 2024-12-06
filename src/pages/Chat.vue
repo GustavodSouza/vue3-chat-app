@@ -3,7 +3,7 @@
     <q-banner class="text-white bg-grey-4 text-center"> Usuário Offline. </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
-        v-for="mensagem in mensagens"
+        v-for="mensagem in this.storeChatInstance.getMensagens"
         :key="mensagem.texto"
         :name="mensagem.from"
         :text="[mensagem.texto]"
@@ -32,37 +32,31 @@
 
 <script lang="ts">
 import { defineComponent, shallowRef } from 'vue'
+import { storeChat } from 'src/store/store'
 
 export default defineComponent({
   name: 'ChatComponent',
 
   data() {
+    const storeChatInstance = storeChat()
+
     return {
       novaMensagem: shallowRef<string>(''),
-      mensagens: [
-        {
-          texto: 'Bom dia! Tudo bem?',
-          from: 'me',
-        },
-        {
-          texto: 'Tudo bem e voce?',
-          from: 'them',
-        },
-        {
-          texto: 'Eu estou bem',
-          from: 'me',
-        },
-      ],
+      storeChatInstance,
     }
+  },
+
+  mounted() {
+    this.storeChatInstance.buscarMensagens(this.$route.params.idOutroUsuario)
   },
 
   methods: {
     enviarMensagem() {
       console.log('Mensagem enviada:', this.novaMensagem)
-      this.mensagens.push({
-        texto: this.novaMensagem,
-        from: 'me',
-      })
+      // this.mensagens.push({
+      //   texto: this.novaMensagem,
+      //   from: 'me',
+      // })
     },
   },
 })
