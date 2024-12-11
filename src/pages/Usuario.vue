@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { storeChat } from 'src/store/store'
+import { storeChat } from '../store/store'
 
 interface UserDetails {
   name?: string

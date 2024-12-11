@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent, shallowRef } from 'vue'
-import { storeChat } from 'src/store/store'
+import { storeChat } from '../store/store'
 
 export default defineComponent({
   name: 'ChatComponent',

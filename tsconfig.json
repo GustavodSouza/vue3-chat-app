@@ -1,11 +1,16 @@
 {
-  "extends": "./.quasar/tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "Node",
     "strict": false,
-    "strictNullChecks": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "#q-app/*": [".quasar/*"]
+    }
+  },
+  "include": [".quasar", "src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
