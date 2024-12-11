@@ -4,7 +4,6 @@
       <q-toolbar class="row items-center">
         <q-btn
           v-if="$route.fullPath.includes('/chat')"
-          v-go-back.single
           icon="arrow_back"
           label="Voltar"
           flat

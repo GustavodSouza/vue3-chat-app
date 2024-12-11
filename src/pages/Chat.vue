@@ -50,6 +50,10 @@ export default defineComponent({
     this.storeChatInstance.buscarMensagens(this.$route.params.idOutroUsuario)
   },
 
+  unmounted() {
+    this.storeChatInstance.pararBuscaMensagens()
+  },
+
   methods: {
     enviarMensagem() {
       console.log('Mensagem enviada:', this.novaMensagem)
