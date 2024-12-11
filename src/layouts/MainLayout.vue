@@ -1,15 +1,17 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header class="row" elevated style="height: 80px">
       <q-toolbar class="row items-center">
-        <q-btn
-          v-if="$route.fullPath.includes('/chat')"
-          icon="arrow_back"
-          label="Voltar"
-          flat
-          dense
-        />
-        <q-toolbar-title class="absolute-center"> {{ getTitle }} </q-toolbar-title>
+        <q-btn v-if="isChat" icon="arrow_back" flat dense @click="$router.push('/')" />
+        <q-toolbar-title>
+          <div class="row items-center">
+            <q-icon v-if="isChat" class="q-pr-md" name="account_circle" size="50px" />
+            <div class="column">
+              {{ getTitle }}
+              <p v-if="isChat" style="font-size: 15px">Online</p>
+            </div>
+          </div>
+        </q-toolbar-title>
         <q-btn
           v-if="!storeChatInstance?.userDetails?.userId"
           to="/auth"
@@ -22,7 +24,7 @@
         />
 
         <q-btn
-          v-else
+          v-if="!isChat && !this.$route.fullPath.includes('/auth')"
           class="absolute-right q-pr-sm"
           icon="account_circle"
           no-caps
@@ -30,9 +32,7 @@
           dense
           label="Sair"
           @click="sair"
-        >
-          {{ storeChatInstance?.userDetails?.name }}
-        </q-btn>
+        />
       </q-toolbar>
     </q-header>
 
@@ -48,7 +48,6 @@ import { storeChat } from 'src/store/store'
 
 export default defineComponent({
   name: 'MainLayoutComponent',
-
   data() {
     const storeChatInstance = storeChat()
 
@@ -58,16 +57,30 @@ export default defineComponent({
   },
 
   computed: {
+    getInformacoesOutroUsuario() {
+      if (this.storeChatInstance.users[this.$route.params.idOutroUsuario]) {
+        return this.storeChatInstance.users[this.$route.params.idOutroUsuario]
+      }
+      return {}
+    },
     getTitle(): string {
       const currentPath: string = this.$route.fullPath
 
       const titleMapper: Record<string, string> = {
-        '/': 'Página Inicial',
+        '/': 'Chat Vue 3',
         '/chat': 'Chat',
         '/auth': 'Login',
       }
 
+      if (currentPath.includes('/chat')) {
+        return this.getInformacoesOutroUsuario.name
+      }
+
       return titleMapper[currentPath] ?? 'Página Inicial'
+    },
+
+    isChat(): boolean {
+      return this.$route.fullPath.includes('/chat')
     },
   },
 

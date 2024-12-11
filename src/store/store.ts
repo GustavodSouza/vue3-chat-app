@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from 'firebase/auth'
-import { getDatabase, ref, set, get, update, onValue, off } from 'firebase/database'
+import { getDatabase, ref, set, get, update, onValue, off, push } from 'firebase/database'
 import { useRouter } from 'vue-router'
 
 interface UsuarioInterface {
@@ -168,6 +168,19 @@ export const storeChat = defineStore('store', {
         off(mensagensRef)
         this.limparMensagens()
       }
+    },
+
+    enviarMensagem(payload) {
+      const userId = this.userDetails.userId
+      const firebaseDb = getDatabase()
+
+      const userRef = ref(firebaseDb, 'chats/' + userId + '/' + payload.otherUserId)
+      push(userRef, payload.message)
+
+      payload.message.from = 'them'
+
+      const outroUserRef = ref(firebaseDb, 'chats/' + payload.otherUserId + '/' + userId)
+      push(outroUserRef, payload.message)
     },
 
     limparMensagens() {
