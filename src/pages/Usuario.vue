@@ -1,10 +1,17 @@
 <template>
   <q-page class="flex q-pa-md">
     <q-list class="full-width" separator>
-      <q-item v-for="contact in contacts" :key="contact.id" class="q-my-sm" clickable v-ripple>
+      <q-item
+        v-for="(contact, key) in getUsuarios"
+        :key="key"
+        :to="'/chat/' + key"
+        class="q-my-sm"
+        clickable
+        v-ripple
+      >
         <q-item-section avatar>
           <q-avatar color="primary" text-color="white">
-            {{ contact.name.charAt(0) }}
+            {{ contact.name ? contact.name.charAt(0) : '' }}
           </q-avatar>
         </q-item-section>
 
@@ -14,7 +21,7 @@
         </q-item-section>
 
         <q-item-section side>
-          <q-badge :color="contact.online ? 'light-green-5' : 'grey-4'">
+          <q-badge :color="contact?.online ? 'light-green-5' : 'grey-4'">
             {{ contact.online ? 'Online' : 'Offline' }}
           </q-badge>
         </q-item-section>
@@ -25,28 +32,33 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { storeChat } from 'src/store/store'
 
-const contacts = [
-  {
-    id: 1,
-    name: 'Gustavo de Souza',
-    email: 'gustavosouza501@gmail.com',
-    online: true,
-  },
-  {
-    id: 2,
-    name: 'Mallorie Alessandrini',
-    email: 'malessandrini1@marketwatch.com',
-    online: false,
-  },
-]
+interface UserDetails {
+  name?: string
+  email?: string
+  userId?: string
+  online?: string
+  key?: string | undefined
+}
 
 export default defineComponent({
   name: 'UsuarioComponent',
   data() {
+    const storeChatInstance = storeChat()
     return {
-      contacts,
+      storeChatInstance,
     }
+  },
+
+  computed: {
+    getUsuarios(): Array<UserDetails> {
+      return this.storeChatInstance.getUsuarios
+    },
+  },
+
+  mounted() {
+    this.storeChatInstance.buscarTodosUsuários()
   },
 })
 </script>
