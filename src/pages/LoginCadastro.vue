@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, shallowRef } from 'vue'
-import { storeChat } from 'src/store/store'
+import { storeChat } from '../store/store'
 
 export default defineComponent({
   name: 'LoginCadastroComponent',
