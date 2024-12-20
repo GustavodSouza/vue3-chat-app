@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page-container flex column">
+  <q-page v-if="!loadingChat" class="page-container flex column">
     <q-banner v-if="!getInformacoesOutroUsuario.online" class="text-white bg-grey-4 text-center">
       {{ getInformacoesOutroUsuario.name }} está offline
     </q-banner>
@@ -26,7 +26,7 @@
           rounded
           label="Mensagem"
           dense
-          @keydown.enter="enviarMensagem"
+          @keydown.enter.prevent="enviarMensagem"
         >
           <template v-slot:after>
             <q-btn
@@ -43,25 +43,37 @@
       </q-form>
     </q-footer>
   </q-page>
+  <chat-skeleton-layout v-else />
 </template>
 
 <script lang="ts">
 import { defineComponent, shallowRef } from 'vue'
 import { storeChat } from '../store/store'
+import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
 
 export default defineComponent({
   name: 'ChatComponent',
+  components: { ChatSkeletonLayout },
   data() {
     const storeChatInstance = storeChat()
 
     return {
       novaMensagem: shallowRef<string>(''),
       storeChatInstance,
+      loadingChat: shallowRef<boolean>(false),
     }
   },
 
-  mounted() {
-    this.storeChatInstance.buscarMensagens(this.$route.params.idOutroUsuario)
+  async mounted() {
+    this.loadingChat = true
+    await this.storeChatInstance
+      .buscarMensagens(this.$route.params.idOutroUsuario)
+      .then((resp) => console.log(resp))
+
+    setTimeout(() => {
+      this.loadingChat = false
+    }, 2000)
+    this.scrollFimPagina()
   },
 
   unmounted() {
@@ -88,6 +100,14 @@ export default defineComponent({
       })
 
       this.novaMensagem = ''
+      this.scrollFimPagina()
+    },
+
+    scrollFimPagina() {
+      window.scrollTo({
+        top: 500,
+        behavior: 'smooth',
+      })
     },
   },
 })
