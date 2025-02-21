@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { IUsuario } from 'src/interface/UsuarioInterface'
+import { getAuth } from 'firebase/auth'
 
 export const usuarioStore = defineStore('usuarioStore', {
   state: () => ({
@@ -9,11 +10,21 @@ export const usuarioStore = defineStore('usuarioStore', {
       email: '',
       uid: '',
     }),
+    usuarios: new Map(),
+    mensagens: {},
   }),
 
   getters: {
     getUsuarioLogado(): IUsuario {
       return this.usuarioLogado
+    },
+
+    getUsuariosConversa() {
+      return this.usuarios
+    },
+
+    getUsuarioMensagens() {
+      return this.mensagens
     },
   },
 
@@ -27,5 +38,20 @@ export const usuarioStore = defineStore('usuarioStore', {
         this.usuarioLogado.uid = uid
       }
     },
+
+    setUsuariosConversa(usuarios: Array<IUsuario>) {
+      usuarios.forEach((usuario: IUsuario) => {
+        this.usuarios.set(usuario.uid, usuario)
+      })
+    },
+
+    setUsuarioMensagens(mensagens) {
+      this.mensagens = mensagens
+    },
+
+    logout() {
+      const auth = getAuth()
+      auth.signOut()
+    }
   },
 })

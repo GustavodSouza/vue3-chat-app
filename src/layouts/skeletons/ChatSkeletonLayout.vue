@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pt-md">
+  <div class="q-pt-md full-width">
     <q-item v-for="(item, index) in 5" :key="index" style="max-width: 300px">
       <q-item-section avatar>
         <q-skeleton type="QAvatar" />

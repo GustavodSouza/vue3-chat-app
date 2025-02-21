@@ -1,5 +1,11 @@
 <template>
-  <router-view />
+  <q-layout view="lHh Lpr lFf">
+    <q-page-container>
+      <q-page>
+        <router-view />
+      </q-page>
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script lang="ts">
@@ -47,7 +53,11 @@ export default defineComponent({
           updateEstadoUsuario(true, userId)
         })
       } else {
-        updateEstadoUsuario(false, this.usuarioStoreInstance.getUsuarioLogado.uid)
+        // Ao realizar o logout verifica o uid do usuário que estava logado
+        if (this.usuarioStoreInstance.getUsuarioLogado.uid) {
+          // Então atualiza seu status para offline
+          updateEstadoUsuario(false, this.usuarioStoreInstance.getUsuarioLogado.uid)
+        }
       }
     })
   },

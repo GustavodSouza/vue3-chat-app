@@ -1,36 +1,31 @@
 <template>
-  <q-page v-if="!loadingPaginaUsuario" class="flex">
-    <q-list class="full-width" separator>
-      <q-item
-        v-for="(usuario, key) in getUsuarios"
-        :key="key"
-        :to="'/chat/' + key"
-        class="q-my-sm"
-        clickable
-        v-ripple
-      >
-        <q-item-section avatar>
-          <q-avatar color="primary" text-color="white">
-            {{ usuario.name ? usuario.name.charAt(0) : '' }}
-          </q-avatar>
-        </q-item-section>
+  <q-list v-if="!loadingPaginaUsuario" class="full-width" separator>
+    <q-item
+      v-for="usuario in getUsuarios"
+      :key="usuario"
+      :to="'/chat/' + usuario.uid"
+      class="q-my-sm"
+      clickable
+      v-ripple
+    >
+      <q-item-section avatar>
+        <q-avatar color="primary" text-color="white">
+          {{ usuario.name ? usuario.name.charAt(0) : '' }}
+        </q-avatar>
+      </q-item-section>
 
-        <q-item-section>
-          <q-item-label>{{ usuario.name }}</q-item-label>
-          <q-item-label caption lines="1">{{ usuario.email }}</q-item-label>
-        </q-item-section>
+      <q-item-section>
+        <q-item-label>{{ usuario.name }}</q-item-label>
+        <q-item-label caption lines="1">{{ usuario.email }}</q-item-label>
+      </q-item-section>
 
-        <q-item-section side>
-          <q-badge :color="usuario?.online ? 'light-green-5' : 'grey-4'">
-            {{ usuario.online ? 'Online' : 'Offline' }}
-          </q-badge>
-        </q-item-section>
-      </q-item>
-      <div class="q-pa-md absolute-bottom-right">
-        <q-btn push color="primary" round icon="add" />
-      </div>
-    </q-list>
-  </q-page>
+      <q-item-section side>
+        <q-badge :color="usuario?.online ? 'light-green-5' : 'grey-4'">
+          {{ usuario.online ? 'Online' : 'Offline' }}
+        </q-badge>
+      </q-item-section>
+    </q-item>
+  </q-list>
   <chat-skeleton-layout v-else />
 </template>
 
@@ -38,21 +33,26 @@
 import { defineComponent, shallowRef } from 'vue'
 
 import { usuarioStore } from 'src/store/usuarioStore'
-import { conversasUsuarioStore } from 'src/store/conversasUsuarioStore'
 
 import { getConversasUsuario } from 'src/services/usuarioService'
+
 import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
+
 import type { IUsuario, IUsuariosRegistrados } from 'src/interface/UsuarioInterface'
+
+import { converterObjetoEmArray } from 'src/helpers/conversor-helpers'
 
 export default defineComponent({
   name: 'ConversasUsuario',
-  components: { ChatSkeletonLayout },
+  
+  components: { 
+    ChatSkeletonLayout 
+  },
+  
   data() {
-    const conversasUsuarioStoreInstance = conversasUsuarioStore()
     const usuarioStoreInstance = usuarioStore()
 
     return {
-      conversasUsuarioStoreInstance,
       usuarioStoreInstance,
       loadingPaginaUsuario: shallowRef<boolean>(false),
     }
@@ -60,15 +60,13 @@ export default defineComponent({
 
   computed: {
     getUsuarios(): Array<IUsuariosRegistrados> {
-      const usuariosFiltrados = []
+      // Elimina o usuario logado da lista
+      this.usuarioStoreInstance.getUsuariosConversa.delete(this.usuarioStoreInstance.getUsuarioLogado.uid)
 
-      Object.keys(this.conversasUsuarioStoreInstance.getUsuariosConversa).forEach((key) => {
-        if (key !== this.usuarioStoreInstance.getUsuarioLogado.uid) {
-          usuariosFiltrados.push(this.conversasUsuarioStoreInstance.getUsuariosConversa[key])
-        }
-      })
-
-      return usuariosFiltrados
+      return [...this.usuarioStoreInstance.getUsuariosConversa].map(([uid, value]) => ({
+        ...value,
+        uid
+      }));
     },
   },
 
@@ -78,8 +76,15 @@ export default defineComponent({
 
   methods: {
     async obterConversasUsuario(): Promise<void> {
+      this.loadingPaginaUsuario = true
+      
       getConversasUsuario((usuarios: IUsuario) => {
-        this.conversasUsuarioStoreInstance.setUsuariosConversa(usuarios)
+
+        // Converte para uma array
+        const usuariosList = converterObjetoEmArray(usuarios)
+
+        this.usuarioStoreInstance.setUsuariosConversa(usuariosList)
+        this.loadingPaginaUsuario = false
       })
     },
   },
