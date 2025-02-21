@@ -79,9 +79,11 @@ export default defineComponent({
       this.loadingPaginaUsuario = true
       
       getConversasUsuario((usuarios: IUsuario) => {
+        let usuariosList = null
 
-        // Converte para uma array
-        const usuariosList = converterObjetoEmArray(usuarios)
+        if (usuarios) {
+          usuariosList = converterObjetoEmArray(usuarios)
+        }
 
         this.usuarioStoreInstance.setUsuariosConversa(usuariosList)
         this.loadingPaginaUsuario = false

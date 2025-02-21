@@ -101,7 +101,7 @@ export default defineComponent({
           // 2º Criar no Database
           await criarUsuarioDataBase(usuario).then(() => {
             console.log('Usuário Criado com sucesso!');
-            this.$router.push('/usuario');
+            this.$router.push('/conversas-usuario');
           })
           .catch((error) => {
             console.error('Erro ao criar o usuário no dataBase: ', error);
