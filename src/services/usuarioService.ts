@@ -1,5 +1,5 @@
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
-import { getDatabase, ref, onValue, get, update, set } from 'firebase/database'
+import { getDatabase, ref, onValue, get, update, set, onChildChanged } from 'firebase/database'
 
 export const loginUsuario = (payload) => {
   const auth = getAuth();
@@ -26,6 +26,7 @@ export const criarUsuarioDataBase = (usuario) => {
         name: usuario.nome,
         email: usuario.email,
         online: true,
+        digitando: false
       });
     }
 };
@@ -52,6 +53,21 @@ export const changeEstadoAutenticacao = (callback) => {
   })
 };
 
+export const changeDataBase = (callback) => {
+  const firebaseDb = getDatabase();
+  const userRef = ref(firebaseDb, "users/");
+
+  onChildChanged(userRef, (snapshot) => {
+    if (snapshot.exists()) {
+      if (snapshot.exists()) {
+        callback(snapshot.val());
+      } else {
+        callback(null);
+      }
+    } 
+  });
+};
+
 export const getUsuarioPorId = (url: string, callback) => {
   const firebaseDb = getDatabase();
   const userRef = ref(firebaseDb, url);
@@ -71,6 +87,15 @@ export const updateEstadoUsuario = (estado: boolean, idUsuario: string) => {
 
   update(userRef, {
     online: estado,
+  })
+};
+
+export const updateEstaDigitando = (estado: boolean, idUsuario: string) => {
+  const firebaseDb = getDatabase();
+  const userRef = ref(firebaseDb, 'users/' + idUsuario);
+
+  update(userRef, {
+    digitando: estado,
   })
 };
 

@@ -33,6 +33,7 @@ export default defineComponent({
 
   mounted() {
     changeEstadoAutenticacao((usuario) => {
+      console.log('Opaaa')
       const auth = getAuth()
 
       if (usuario) {

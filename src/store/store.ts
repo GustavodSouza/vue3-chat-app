@@ -94,13 +94,11 @@ export const storeChat = defineStore('store', {
     },
 
     mudarStadoAutenticacao() {
-      // debugger
       const router = useRouter()
       const auth = getAuth()
       const firebaseDb = getDatabase()
 
       auth.onAuthStateChanged((userResponse) => {
-        // debugger
         if (userResponse) {
           const currentUser = auth.currentUser
 

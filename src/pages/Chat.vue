@@ -1,7 +1,7 @@
 <template>
   <q-page v-if="!loadingChat" class="page-container flex column">
-    <q-banner v-if="!getInformacoesOutroUsuario.online" class="text-white bg-grey-4 text-center">
-      {{ getInformacoesOutroUsuario.name }} está offline
+    <q-banner v-if="!getUsuarioDestinatario?.online" class="text-white bg-grey-4 text-center">
+      {{ getUsuarioDestinatario?.name }} está offline
     </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
@@ -9,12 +9,13 @@
         :key="mensagem.texto"
         :name="
           mensagem.from === 'me'
-            ? getInformacoesUsuarioLogado
-            : getInformacoesOutroUsuario.name
+            ? getUsuarioLogado.name
+            : getUsuarioDestinatario.name
         "
         :text="[mensagem.texto]"
         :sent="mensagem.from === 'me'"
       />
+      <span v-if="showDigitando">Digitando...</span>
     </div>
     <q-footer class="q-pa-sm" elevated>
       <q-form>
@@ -27,6 +28,7 @@
           label="Mensagem"
           dense
           @keydown.enter.prevent="enviarMensagem"
+          @update:model-value="digitando"
         >
           <template v-slot:after>
             <q-btn
@@ -52,6 +54,7 @@ import { defineComponent, shallowRef } from 'vue'
 import { usuarioStore } from 'src/store/usuarioStore'
 
 import { buscarMensagens, enviarMensagem } from 'src/services/chatService'
+import { updateEstaDigitando, changeDataBase } from 'src/services/usuarioService'
 
 import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
 
@@ -70,19 +73,22 @@ export default defineComponent({
       loadingChat: shallowRef<boolean>(false),
       mensagens: [],
       usuarioStoreInstance,
+      typingTimeout: null,
+      showDigitando: false,
     }
   },
 
   async mounted() {
     this.buscarMensagens()
+    this.changeDataBaseUsuario()
   },
 
   computed: {
-    getInformacoesUsuarioLogado() {
-      return this.usuarioStoreInstance.getUsuarioLogado.name
+    getUsuarioLogado() {
+      return this.usuarioStoreInstance.getUsuarioLogado
     },
 
-    getInformacoesOutroUsuario() {
+    getUsuarioDestinatario() {
       return this.usuarioStoreInstance.usuarios.get(this.$route.params.idOutroUsuario)
     },
   },
@@ -91,18 +97,16 @@ export default defineComponent({
     async buscarMensagens(): Promise<void> {
       this.loadingChat = true
 
-      const uidDestinatario = this.$route.params.idOutroUsuario
-      const uidRemetente = this.usuarioStoreInstance.getUsuarioLogado.uid
+      buscarMensagens(this.getUsuarioDestinatario.uid, this.getUsuarioLogado.uid, (callback) => {
+        if (callback) {
+          this.mensagens = converterObjetoEmArray(callback)
+        }
 
-      buscarMensagens(uidDestinatario, uidRemetente, (callback) => {
-        this.mensagens = converterObjetoEmArray(callback)
         this.loadingChat = false
       })
     },
 
     async enviarMensagem(): Promise<void> {
-      const uidRemetente = this.usuarioStoreInstance.getUsuarioLogado.uid
-
       const payload = {
         message: {
           texto: this.novaMensagem,
@@ -111,7 +115,7 @@ export default defineComponent({
         otherUserId: this.$route.params.idOutroUsuario
       }
 
-      enviarMensagem(payload, uidRemetente)
+      enviarMensagem(payload, this.getUsuarioLogado.uid)
       
       this.novaMensagem = ''
       this.scrollFimPagina()
@@ -123,6 +127,24 @@ export default defineComponent({
         behavior: 'smooth',
       })
     },
+
+    digitando() {
+      updateEstaDigitando(true, this.getUsuarioLogado.uid)
+
+      // Limpa o timeout anterior
+      clearTimeout(this.typingTimeout);
+
+      // Define um novo timeout para detectar inatividade
+      this.typingTimeout = setTimeout(() => {
+        updateEstaDigitando(false, this.getUsuarioLogado.uid)
+      }, 1000);
+    },
+
+    changeDataBaseUsuario() {
+      changeDataBase((resp) => {
+        this.showDigitando = resp.digitando && resp.name !== this.getUsuarioLogado.name
+      })
+    }
   },
 })
 </script>

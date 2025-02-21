@@ -24,9 +24,6 @@ const routes: RouteRecordRaw[] = [
       { 
         path: '/conversas-usuario',
         component: () => import('src/pages/ConversasUsuario.vue'),
-        meta: {
-          tituloPagina: 'Página Inicial'
-        }
       },
     ],
   },

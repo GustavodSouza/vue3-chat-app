@@ -26,7 +26,7 @@
                   v-if="isChat" 
                   style="font-size: 12px"
                 >
-                  {{ getInformacoesOutroUsuario.online ? 'Online' : 'Offline' }}
+                  {{ getInformacoesOutroUsuario?.online ? 'Online' : 'Offline' }}
                 </span>
               </div>
             </div>
@@ -69,14 +69,21 @@ export default defineComponent({
   },
 
   computed: {
+    getInformacoesUsuarioLogado() {
+      return this.usuarioStoreInstance.usuarioLogado
+    },
+
     getInformacoesOutroUsuario() {
-      debugger
       return this.usuarioStoreInstance.usuarios.get(this.$route.params.idOutroUsuario)
     },
 
     getTituloPagina(): string {
       if (this.getInformacoesOutroUsuario) {
         return this.getInformacoesOutroUsuario.name
+      }
+
+      if (this.getInformacoesUsuarioLogado) {
+        return this.getInformacoesUsuarioLogado.name
       }
 
       return this.$route.matched.slice(1)[0].meta.tituloPagina
