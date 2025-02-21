@@ -1,15 +1,15 @@
 <template>
-  <q-page class="page-container flex column">
+  <q-page v-if="!loadingChat" class="page-container flex column">
     <q-banner v-if="!getInformacoesOutroUsuario.online" class="text-white bg-grey-4 text-center">
       {{ getInformacoesOutroUsuario.name }} está offline
     </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
-        v-for="mensagem in this.storeChatInstance.getMensagens"
+        v-for="mensagem in mensagens"
         :key="mensagem.texto"
         :name="
           mensagem.from === 'me'
-            ? storeChatInstance.userDetails.name
+            ? getInformacoesUsuarioLogado
             : getInformacoesOutroUsuario.name
         "
         :text="[mensagem.texto]"
@@ -26,7 +26,7 @@
           rounded
           label="Mensagem"
           dense
-          @keydown.enter="enviarMensagem"
+          @keydown.enter.prevent="enviarMensagem"
         >
           <template v-slot:after>
             <q-btn
@@ -43,51 +43,85 @@
       </q-form>
     </q-footer>
   </q-page>
+  <chat-skeleton-layout v-else />
 </template>
 
 <script lang="ts">
 import { defineComponent, shallowRef } from 'vue'
-import { storeChat } from '../store/store'
+
+import { usuarioStore } from 'src/store/usuarioStore'
+
+import { buscarMensagens, enviarMensagem } from 'src/services/chatService'
+
+import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
+
+import { converterObjetoEmArray } from 'src/helpers/conversor-helpers'
 
 export default defineComponent({
   name: 'ChatComponent',
+  
+  components: { ChatSkeletonLayout },
+  
   data() {
-    const storeChatInstance = storeChat()
+    const usuarioStoreInstance = usuarioStore()
 
     return {
       novaMensagem: shallowRef<string>(''),
-      storeChatInstance,
+      loadingChat: shallowRef<boolean>(false),
+      mensagens: [],
+      usuarioStoreInstance,
     }
   },
 
-  mounted() {
-    this.storeChatInstance.buscarMensagens(this.$route.params.idOutroUsuario)
-  },
-
-  unmounted() {
-    this.storeChatInstance.pararBuscaMensagens()
+  async mounted() {
+    this.buscarMensagens()
   },
 
   computed: {
+    getInformacoesUsuarioLogado() {
+      return this.usuarioStoreInstance.getUsuarioLogado.name
+    },
+
     getInformacoesOutroUsuario() {
-      if (this.storeChatInstance.users[this.$route.params.idOutroUsuario]) {
-        return this.storeChatInstance.users[this.$route.params.idOutroUsuario]
-      }
-      return {}
+      return this.usuarioStoreInstance.usuarios.get(this.$route.params.idOutroUsuario)
     },
   },
 
   methods: {
-    enviarMensagem() {
-      this.storeChatInstance.enviarMensagem({
+    async buscarMensagens(): Promise<void> {
+      this.loadingChat = true
+
+      const uidDestinatario = this.$route.params.idOutroUsuario
+      const uidRemetente = this.usuarioStoreInstance.getUsuarioLogado.uid
+
+      buscarMensagens(uidDestinatario, uidRemetente, (callback) => {
+        this.mensagens = converterObjetoEmArray(callback)
+        this.loadingChat = false
+      })
+    },
+
+    async enviarMensagem(): Promise<void> {
+      const uidRemetente = this.usuarioStoreInstance.getUsuarioLogado.uid
+
+      const payload = {
         message: {
           texto: this.novaMensagem,
           from: 'me',
         },
-        otherUserId: this.$route.params.idOutroUsuario,
-      })
+        otherUserId: this.$route.params.idOutroUsuario
+      }
 
+      enviarMensagem(payload, uidRemetente)
+      
       this.novaMensagem = ''
+      this.scrollFimPagina()
+    },
+
+    scrollFimPagina() {
+      window.scrollTo({
+        top: 500,
+        behavior: 'smooth',
+      })
     },
   },
 })

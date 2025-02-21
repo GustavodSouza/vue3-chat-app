@@ -76,19 +76,25 @@ export const storeChat = defineStore('store', {
         })
     },
 
-    loginUsuario(novoUsuario: UsuarioInterface) {
+    async loginUsuario(novoUsuario: UsuarioInterface) {
       const auth = getAuth()
 
-      signInWithEmailAndPassword(auth, novoUsuario.email, novoUsuario.senha)
+      let sucesso = false
+
+      await signInWithEmailAndPassword(auth, novoUsuario.email, novoUsuario.senha)
         .then((response) => {
-          console.log('Usuário Logado: ', response)
+          console.log(response)
+          sucesso = true
         })
         .catch((error) => {
           console.log('Error', error)
         })
+
+      return sucesso
     },
 
     mudarStadoAutenticacao() {
+      // debugger
       const router = useRouter()
       const auth = getAuth()
       const firebaseDb = getDatabase()
@@ -116,7 +122,8 @@ export const storeChat = defineStore('store', {
                 update(userRef, {
                   online: true,
                 })
-                router.push('/')
+
+                // router.push('/')
               }
             })
           }
@@ -135,11 +142,11 @@ export const storeChat = defineStore('store', {
       })
     },
 
-    buscarTodosUsuários() {
+    async buscarTodosUsuários() {
       const firebaseDb = getDatabase()
       const userRef = ref(firebaseDb, 'users/')
 
-      onValue(userRef, (snapshot) => {
+      return onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
           const userDetails = snapshot.val()
           this.users = userDetails
@@ -147,7 +154,7 @@ export const storeChat = defineStore('store', {
       })
     },
 
-    buscarMensagens(idOutroUsuario: string) {
+    async buscarMensagens(idOutroUsuario: string) {
       const userId = this.userDetails.userId
       const firebaseDb = getDatabase()
 
@@ -155,7 +162,7 @@ export const storeChat = defineStore('store', {
 
       mensagensRef = userRef
 
-      onValue(userRef, (snapshot) => {
+      return onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
           const userMessages = snapshot.val()
           this.messages = userMessages

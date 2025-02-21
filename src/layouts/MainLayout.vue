@@ -2,36 +2,46 @@
   <q-layout view="lHh Lpr lFf">
     <q-header class="row" elevated style="height: 80px">
       <q-toolbar class="row items-center">
-        <q-btn v-if="isChat" icon="arrow_back" flat dense @click="$router.push('/')" />
-        <q-toolbar-title>
-          <div class="row items-center">
-            <q-icon v-if="isChat" class="q-pr-md" name="account_circle" size="50px" />
-            <div class="column">
-              {{ getTitle }}
-              <p v-if="isChat" style="font-size: 15px">Online</p>
-            </div>
-          </div>
-        </q-toolbar-title>
-        <q-btn
-          v-if="!storeChatInstance?.userDetails?.userId"
-          to="/auth"
-          class="absolute-right q-pr-sm"
-          icon="account_circle"
-          no-caps
-          flat
-          dense
-          label="Login"
+        <q-btn 
+          v-if="isChat" 
+          icon="arrow_back" 
+          flat 
+          dense 
+          @click="redirecionarConversas" 
         />
+        <div class="row">
+          <q-toolbar-title>
+            <div class="row items-center">
+              <q-icon 
+                v-if="isChat" 
+                class="q-pr-md" 
+                name="account_circle" 
+                size="50px" 
+              />
+              <div class="column">
+                <span>
+                  {{ getTituloPagina }}
+                </span>
+                <span 
+                  v-if="isChat" 
+                  style="font-size: 12px"
+                >
+                  {{ getInformacoesOutroUsuario.online ? 'Online' : 'Offline' }}
+                </span>
+              </div>
+            </div>
+          </q-toolbar-title>
+        </div>
 
         <q-btn
-          v-if="!isChat && !this.$route.fullPath.includes('/auth')"
+          v-if="isNotLogin"
           class="absolute-right q-pr-sm"
           icon="account_circle"
           no-caps
           flat
           dense
           label="Sair"
-          @click="sair"
+          @click="logout"
         />
       </q-toolbar>
     </q-header>
@@ -44,50 +54,52 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { storeChat } from '../store/store'
+
+import { usuarioStore } from 'src/store/usuarioStore'
 
 export default defineComponent({
   name: 'MainLayoutComponent',
+ 
   data() {
-    const storeChatInstance = storeChat()
+    const usuarioStoreInstance = usuarioStore()
 
     return {
-      storeChatInstance,
+      usuarioStoreInstance,
     }
   },
 
   computed: {
     getInformacoesOutroUsuario() {
-      if (this.storeChatInstance.users[this.$route.params.idOutroUsuario]) {
-        return this.storeChatInstance.users[this.$route.params.idOutroUsuario]
-      }
-      return {}
+      debugger
+      return this.usuarioStoreInstance.usuarios.get(this.$route.params.idOutroUsuario)
     },
-    getTitle(): string {
-      const currentPath: string = this.$route.fullPath
 
-      const titleMapper: Record<string, string> = {
-        '/': 'Chat Vue 3',
-        '/chat': 'Chat',
-        '/auth': 'Login',
-      }
-
-      if (currentPath.includes('/chat')) {
+    getTituloPagina(): string {
+      if (this.getInformacoesOutroUsuario) {
         return this.getInformacoesOutroUsuario.name
       }
 
-      return titleMapper[currentPath] ?? 'Página Inicial'
+      return this.$route.matched.slice(1)[0].meta.tituloPagina
     },
 
     isChat(): boolean {
       return this.$route.fullPath.includes('/chat')
     },
+
+    isNotLogin(): boolean {
+      return this.$route.fullPath !== '/'
+    }
   },
 
   methods: {
-    sair(): void {
-      this.storeChatInstance.sair()
+    logout(): void {
+      this.usuarioStoreInstance.logout()
+      this.$router.push('/')
     },
+
+    redirecionarConversas(): void {
+      this.$router.push('/conversas-usuario')
+    }
   },
 })
 </script>

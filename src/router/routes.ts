@@ -3,11 +3,31 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('../layouts/MainLayout.vue'),
+    component: () => import('src/layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('../pages/Usuario.vue') },
-      { path: 'chat/:idOutroUsuario', component: () => import('../pages/Chat.vue') },
-      { path: 'auth', component: () => import('../pages/Auth.vue') },
+      { 
+        path: '', 
+        component: () => import('src/pages/Auth.vue'),
+        meta: {
+          tituloPagina: 'Autenticação'
+        }
+      },
+
+      { 
+        path: '/chat/:idOutroUsuario', 
+        component: () => import('src/pages/Chat.vue'),
+        meta: {
+          tituloPagina: 'Chat'
+        }
+      },
+
+      { 
+        path: '/conversas-usuario',
+        component: () => import('src/pages/ConversasUsuario.vue'),
+        meta: {
+          tituloPagina: 'Página Inicial'
+        }
+      },
     ],
   },
 ]
