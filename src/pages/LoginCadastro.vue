@@ -38,6 +38,7 @@
 import { defineComponent, ref, shallowRef } from 'vue'
 import { usuarioStore } from 'src/store/usuarioStore'
 import { loginUsuario, cadastrarUsuarioAuthentication, criarUsuarioDataBase } from 'src/services/usuarioService'
+import { hideLoader, showLoader } from 'src/plugin/loaderPlugin';
 
 export default defineComponent({
   name: 'LoginCadastroComponent',
@@ -76,15 +77,17 @@ export default defineComponent({
     },
 
     async realizarLogin(): Promise<void> {
+      showLoader()
+
       await loginUsuario(this.formulario)
         .then((response) => {
           this.usuarioStoreInstance.setUsuarioLogado(response.user)
           this.$router.push('/conversas-usuario')
         })
         .catch((error) => {
-          console.error('Ocorreu um erro ao realizar o login: ', error)
+          console.error('Ocorreu um erro ao realizar o login: ', error.code)
         })
-        .finally()
+        .finally(hideLoader)
     },
 
     async realizarCadastro(): Promise<void> {
@@ -93,6 +96,8 @@ export default defineComponent({
         email: this.formulario.email,
         senha: this.formulario.senha
       };
+
+      showLoader();
 
       // 1º Cria no authentication
       await cadastrarUsuarioAuthentication(usuario).then(async (response) => {
@@ -109,7 +114,7 @@ export default defineComponent({
         }
       }).catch((error) => {
         console.error('Erro ao criar o usuário no autenthication: ', error);
-      });
+      }).finally(hideLoader);
     },
 
     validarInput(valor: string): boolean {

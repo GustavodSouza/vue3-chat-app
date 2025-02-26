@@ -1,8 +1,8 @@
 <template>
-  <q-list v-if="!loadingPaginaUsuario" class="full-width" separator>
+  <q-list v-if="getUsuarios.length" class="full-width" separator>
     <q-item
-      v-for="usuario in getUsuarios"
-      :key="usuario"
+      v-for="(usuario, index) in getUsuarios"
+      :key="index"
       :to="'/chat/' + usuario.uid"
       class="q-my-sm"
       clickable
@@ -26,7 +26,8 @@
       </q-item-section>
     </q-item>
   </q-list>
-  <chat-skeleton-layout v-else />
+  <span>A lista está vazia!</span>
+  <!-- <chat-skeleton-layout v-else /> -->
 </template>
 
 <script lang="ts">
@@ -36,7 +37,7 @@ import { usuarioStore } from 'src/store/usuarioStore'
 
 import { getConversasUsuario } from 'src/services/usuarioService'
 
-import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
+// import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
 
 import type { IUsuario, IUsuariosRegistrados } from 'src/interface/UsuarioInterface'
 
@@ -46,7 +47,7 @@ export default defineComponent({
   name: 'ConversasUsuario',
   
   components: { 
-    ChatSkeletonLayout 
+   // ChatSkeletonLayout 
   },
   
   data() {

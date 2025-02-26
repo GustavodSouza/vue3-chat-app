@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lHh Lpr lFf" class="q-pa-md">
     <q-header class="row" elevated style="height: 80px">
       <q-toolbar class="row items-center">
         <q-btn 
@@ -78,11 +78,11 @@ export default defineComponent({
     },
 
     getTituloPagina(): string {
-      if (this.getInformacoesOutroUsuario) {
-        return this.getInformacoesOutroUsuario.name
-      }
+      // if (this.getInformacoesOutroUsuario) {
+      //   return this.getInformacoesOutroUsuario.name
+      // }
 
-      if (this.getInformacoesUsuarioLogado) {
+      if (this.getInformacoesUsuarioLogado && this.$route.path !== '/') {
         return this.getInformacoesUsuarioLogado.name
       }
 
