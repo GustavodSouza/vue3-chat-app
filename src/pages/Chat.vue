@@ -1,6 +1,6 @@
 <template>
   <q-page v-if="!loadingChat" class="page-container flex column">
-    <q-banner v-if="!getUsuarioDestinatario?.online" class="text-white bg-grey-4 text-center">
+    <q-banner v-if="!getUsuarioDestinatario?.online" class="text-white bg-grey-6 text-center">
       {{ getUsuarioDestinatario?.name }} está offline
     </q-banner>
     <div class="q-pa-md column col justify-end">
@@ -150,6 +150,6 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .page-container {
-  background: #e2dfd5;
+  background: #cece9a;
 }
 </style>

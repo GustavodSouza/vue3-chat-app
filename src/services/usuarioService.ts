@@ -68,9 +68,9 @@ export const changeDataBase = (callback) => {
   });
 };
 
-export const getUsuarioPorId = (url: string, callback) => {
+export const getUsuarioPorId = (uid: string, callback) => {
   const firebaseDb = getDatabase();
-  const userRef = ref(firebaseDb, url);
+  const userRef = ref(firebaseDb, `/users/${uid}`);
 
   get(userRef).then((snapshot) => {
     if (snapshot.exists()) {

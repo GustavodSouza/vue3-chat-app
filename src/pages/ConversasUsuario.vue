@@ -26,8 +26,6 @@
       </q-item-section>
     </q-item>
   </q-list>
-  <span>A lista está vazia!</span>
-  <!-- <chat-skeleton-layout v-else /> -->
 </template>
 
 <script lang="ts">
@@ -37,7 +35,6 @@ import { usuarioStore } from 'src/store/usuarioStore'
 
 import { getConversasUsuario } from 'src/services/usuarioService'
 
-// import ChatSkeletonLayout from 'src/layouts/skeletons/ChatSkeletonLayout.vue'
 
 import type { IUsuario, IUsuariosRegistrados } from 'src/interface/UsuarioInterface'
 
@@ -47,7 +44,6 @@ export default defineComponent({
   name: 'ConversasUsuario',
   
   components: { 
-   // ChatSkeletonLayout 
   },
   
   data() {

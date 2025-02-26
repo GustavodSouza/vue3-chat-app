@@ -1,11 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-page-container>
-      <q-page>
-        <router-view />
-      </q-page>
-    </q-page-container>
-  </q-layout>
+  <router-view />
 </template>
 
 <script lang="ts">
@@ -40,12 +34,10 @@ export default defineComponent({
         const currentUser = auth.currentUser
         const userId = currentUser?.uid
 
-        const url = `users/${userId}`
-
-        getUsuarioPorId(url, (callback) => {
+        getUsuarioPorId(userId, (callback) => {
           const payload = {
-            email: callback.email,
-            displayName: callback.name,
+            email: callback ? callback.email : currentUser.email,
+            displayName: callback ? callback.name : '',
             uid: userId,
           }
 
@@ -54,6 +46,7 @@ export default defineComponent({
           updateEstadoUsuario(true, userId)
         })
       } else {
+        debugger
         // Ao realizar o logout verifica o uid do usuário que estava logado
         if (this.usuarioStoreInstance.getUsuarioLogado.uid) {
           // Então atualiza seu status para offline
