@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import type { IUsuario } from 'src/interface/UsuarioInterface'
 import { getAuth } from 'firebase/auth'
