@@ -23,7 +23,7 @@
       label="Senha"
       :rules="[validarInput]"
     />
-    <div class="row justify-end">
+    <div class="row justify-start">
       <q-btn
         color="primary"
         no-caps
@@ -92,12 +92,6 @@ export default defineComponent({
         .then(async (response) => {
 
           await getUsuarioPorId(response.user.uid, (response: IUsuario) => {
-            // const usuario = {
-            //   email: response.email,
-            //   displayName: response.nome,
-            //   uid: response.uid
-            // };
-
             this.usuarioStoreInstance.setUsuarioLogado(response)
             this.$router.push('/conversas-usuario')
           });
