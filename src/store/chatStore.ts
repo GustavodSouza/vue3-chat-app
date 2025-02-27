@@ -1,19 +1,26 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
+import type { IChat } from 'src/interface/ChatInterface';
+import { ref } from 'vue';
 
-export const usuarioStore = defineStore('usuarioStore', {
+export const chatStore = defineStore('chatStore', {
   state: () => ({
-    mensagens: []
+    mensagens: ref<Array<IChat>>([]),
   }),
   
   getters: {
     getMensagens() {
-      return this.mensagens
+      return this.mensagens;
     }
   },
 
   actions: {
     setMensagens(mensagens) {
-      this.mensagens = mensagens
+      this.mensagens = mensagens;
     }
-  }
+  },
+
+  persist: {
+    storage: sessionStorage,
+    key: 'chatStore',
+  },
 })

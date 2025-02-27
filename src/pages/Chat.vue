@@ -1,16 +1,16 @@
 <template>
   <q-page v-if="!loadingChat" class="page-container flex column">
-    <q-banner v-if="!getUsuarioDestinatario?.online" class="text-white bg-grey-4 text-center">
-      {{ getUsuarioDestinatario?.name }} está offline
+    <q-banner v-if="!getUsuarioDestinatario?.online" class="text-white bg-grey-6 text-center">
+      {{ getUsuarioDestinatario?.nome }} está offline
     </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message
-        v-for="mensagem in mensagens"
+        v-for="mensagem in getChat"
         :key="mensagem.texto"
         :name="
           mensagem.from === 'me'
-            ? getUsuarioLogado.name
-            : getUsuarioDestinatario.name
+            ? getUsuarioLogado.nome
+            : getUsuarioDestinatario.nome
         "
         :text="[mensagem.texto]"
         :sent="mensagem.from === 'me'"
@@ -28,7 +28,7 @@
           label="Mensagem"
           dense
           @keydown.enter.prevent="enviarMensagem"
-          @update:model-value="digitando"
+          @update:model-value="usuarioDigitando"
         >
           <template v-slot:after>
             <q-btn
@@ -52,6 +52,7 @@
 import { defineComponent, shallowRef } from 'vue'
 
 import { usuarioStore } from 'src/store/usuarioStore'
+import { chatStore } from 'src/store/chatStore';
 
 import { buscarMensagens, enviarMensagem } from 'src/services/chatService'
 import { updateEstaDigitando, changeDataBase } from 'src/services/usuarioService'
@@ -66,13 +67,14 @@ export default defineComponent({
   components: { ChatSkeletonLayout },
   
   data() {
-    const usuarioStoreInstance = usuarioStore()
+    const usuarioStoreInstance = usuarioStore();
+    const chatStoreInstance = chatStore();
 
     return {
       novaMensagem: shallowRef<string>(''),
       loadingChat: shallowRef<boolean>(false),
-      mensagens: [],
       usuarioStoreInstance,
+      chatStoreInstance,
       typingTimeout: null,
       showDigitando: false,
     }
@@ -91,18 +93,24 @@ export default defineComponent({
     getUsuarioDestinatario() {
       return this.usuarioStoreInstance.usuarios.get(this.$route.params.idOutroUsuario)
     },
+
+    getChat() {
+      return this.chatStoreInstance.getMensagens
+    }
   },
 
   methods: {
     async buscarMensagens(): Promise<void> {
-      this.loadingChat = true
+      this.loadingChat = true;
 
-      buscarMensagens(this.getUsuarioDestinatario.uid, this.getUsuarioLogado.uid, (callback) => {
+      debugger
+      buscarMensagens(this.$route.params.idOutroUsuario, this.getUsuarioLogado.uid, (callback) => {
         if (callback) {
-          this.mensagens = converterObjetoEmArray(callback)
+          console.log(converterObjetoEmArray(callback))
+          this.chatStoreInstance.setMensagens(converterObjetoEmArray(callback));
         }
 
-        this.loadingChat = false
+        this.loadingChat = false;
       })
     },
 
@@ -128,7 +136,8 @@ export default defineComponent({
       })
     },
 
-    digitando() {
+    usuarioDigitando(): void {
+      debugger
       updateEstaDigitando(true, this.getUsuarioLogado.uid)
 
       // Limpa o timeout anterior
@@ -142,7 +151,7 @@ export default defineComponent({
 
     changeDataBaseUsuario() {
       changeDataBase((resp) => {
-        this.showDigitando = resp.digitando && resp.name !== this.getUsuarioLogado.name
+        this.showDigitando = resp.digitando && resp.nome !== this.getUsuarioLogado.nome
       })
     }
   },
@@ -150,6 +159,6 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .page-container {
-  background: #e2dfd5;
+  background: #cece9a;
 }
 </style>
