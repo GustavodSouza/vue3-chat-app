@@ -88,7 +88,6 @@ export default defineComponent({
     async realizarLogin(): Promise<void> {
       showLoader()
 
-      debugger
       await loginUsuario(this.formulario)
         .then(async (response) => {
 

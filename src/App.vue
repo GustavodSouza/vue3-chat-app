@@ -30,7 +30,6 @@ export default defineComponent({
     changeEstadoAutenticacao((usuario) => {
       const auth = getAuth()
 
-      debugger
       if (usuario) {
         const currentUser = auth.currentUser
         const userId = currentUser?.uid

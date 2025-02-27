@@ -98,7 +98,6 @@ export const updateEstadoUsuario = (estado: boolean, idUsuario: string) => {
 };
 
 export const updateEstaDigitando = (estado: boolean, idUsuario: string) => {
-  debugger
   const firebaseDb = getDatabase();
   const userRef = ref(firebaseDb, 'users/' + idUsuario);
 
@@ -108,7 +107,6 @@ export const updateEstaDigitando = (estado: boolean, idUsuario: string) => {
 };
 
 export const updatePerfilUsuario = async (usuario) => {
-  debugger
   const auth = getAuth();
 
   if (auth.currentUser) {
