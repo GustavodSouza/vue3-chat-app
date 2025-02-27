@@ -6,7 +6,7 @@ import { getAuth } from 'firebase/auth'
 export const usuarioStore = defineStore('usuarioStore', {
   state: () => ({
     usuarioLogado: ref<IUsuario>({
-      name: '',
+      nome: '',
       email: '',
       uid: '',
     }),
@@ -19,7 +19,7 @@ export const usuarioStore = defineStore('usuarioStore', {
       return this.usuarioLogado
     },
 
-    getUsuariosConversa() {
+    getContatos() {
       return this.usuarios
     },
 
@@ -29,17 +29,13 @@ export const usuarioStore = defineStore('usuarioStore', {
   },
 
   actions: {
-    setUsuarioLogado(usuarioLogado): void {
+    setUsuarioLogado(usuarioLogado: IUsuario): void {
       if (usuarioLogado) {
-        const { email, displayName, uid } = usuarioLogado
-
-        this.usuarioLogado.name = displayName
-        this.usuarioLogado.email = email
-        this.usuarioLogado.uid = uid
+        this.usuarioLogado = usuarioLogado;
       }
     },
 
-    setUsuariosConversa(usuarios: Array<IUsuario>) {
+    setContatos(usuarios: Array<IUsuario>) {
       usuarios.forEach((usuario: IUsuario) => {
         this.usuarios.set(usuario.uid, usuario)
       })

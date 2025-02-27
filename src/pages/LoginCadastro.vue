@@ -37,10 +37,17 @@
 <script lang="ts">
 import { defineComponent, ref, shallowRef } from 'vue'
 import { usuarioStore } from 'src/store/usuarioStore'
-import { loginUsuario, cadastrarUsuarioAuthentication, criarUsuarioDataBase, getUsuarioPorId } from 'src/services/usuarioService'
 import { hideLoader, showLoader } from 'src/plugin/loaderPlugin';
 import { notify } from 'src/plugin/notifyPlugin';
 import type { IUsuario } from 'src/interface/UsuarioInterface';
+
+import { 
+  loginUsuario, 
+  cadastrarUsuarioAuthentication, 
+  criarUsuarioDataBase, 
+  getUsuarioPorId, 
+  // updatePerfilUsuario 
+} from 'src/services/usuarioService';
 
 export default defineComponent({
   name: 'LoginCadastroComponent',
@@ -86,13 +93,13 @@ export default defineComponent({
         .then(async (response) => {
 
           await getUsuarioPorId(response.user.uid, (response: IUsuario) => {
-            const usuario = {
-              email: response.email,
-              displayName: response.name,
-              uid: response.uid
-            };
+            // const usuario = {
+            //   email: response.email,
+            //   displayName: response.nome,
+            //   uid: response.uid
+            // };
 
-            this.usuarioStoreInstance.setUsuarioLogado(usuario)
+            this.usuarioStoreInstance.setUsuarioLogado(response)
             this.$router.push('/conversas-usuario')
           });
         })
@@ -107,6 +114,7 @@ export default defineComponent({
     },
 
     async realizarCadastro(): Promise<void> {
+      // 1º Obtém os dados do formulário;
       const usuario = {
         nome: this.formulario.nome,
         email: this.formulario.email,
@@ -115,11 +123,11 @@ export default defineComponent({
 
       showLoader();
 
-      // 1º Cria no authentication
+      // 2º Cria no authentication;
       await cadastrarUsuarioAuthentication(usuario).then(async (response) => {
-        debugger
         if (response) {
-          this.registrarUsuarioNoRealTime(usuario, response.user.uid);          
+          // updatePerfilUsuario({ nome: usuario.nome }); // 3º Atualizo o displayName;
+          this.registrarUsuarioNoRealTime(usuario, response.user.uid); // 4º Cria o usuário no RealTime;        
         }
       }).catch((error) => {
         console.error(error);
@@ -130,19 +138,19 @@ export default defineComponent({
       }).finally(hideLoader);
     },
 
-    registrarUsuarioNoRealTime(usuario, uidUsuario): void {
-      debugger
-      const usuarioPayload = {
-        email: usuario.email,
-        displayName: usuario.nome,
-        uid: uidUsuario
-      };
+    registrarUsuarioNoRealTime(usuario: IUsuario, uidUser: string): void {
+      const usuarioModel = {
+        ...usuario,
+        uid: uidUser
+      }
 
       // 2º Criar no Database
-      criarUsuarioDataBase(usuario).then(() => {
-        this.usuarioStoreInstance.setUsuarioLogado(usuarioPayload)
+      criarUsuarioDataBase(usuarioModel).then(() => {
+
+        this.usuarioStoreInstance.setUsuarioLogado(usuarioModel)
 
         notify('positive', 'Conta criada com sucesso!');
+
         this.$router.push('/conversas-usuario');
       })
       .catch((error) => {

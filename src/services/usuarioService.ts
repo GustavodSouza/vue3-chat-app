@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, getAuth, updateProfile } from 'firebase/auth'
 import { getDatabase, ref, onValue, get, update, set, onChildChanged } from 'firebase/database'
 
 export const loginUsuario = (payload) => {
@@ -14,7 +14,6 @@ export const cadastrarUsuarioAuthentication = (usuario: { email: string, senha: 
 export const criarUsuarioDataBase = (usuario) => {
   const auth = getAuth();
   const firebaseDb = getDatabase();
-
   const user = auth.currentUser;
 
     if (user) {
@@ -23,22 +22,30 @@ export const criarUsuarioDataBase = (usuario) => {
       const userRef = ref(firebaseDb, 'users/' + userId);
 
       return set(userRef, {
-        name: usuario.nome,
-        email: usuario.email,
+        ...usuario,
         online: true,
         digitando: false
       });
     }
 };
 
-export const getConversasUsuario = (callback) => {
+export const getContatos = (callback) => {
   const firebaseDb = getDatabase();
   const userRef = ref(firebaseDb, 'users/');
+  const auth = getAuth();
 
-  // Observa mudanças no nó 'users' do Firebase
   onValue(userRef, (snapshot) => {
     if (snapshot.exists()) {
-      callback(snapshot.val());
+      const users = snapshot.val();
+      
+      const filteredUsers = Object.keys(users)
+      .filter((uid) => uid !== auth.currentUser.uid)
+      .map((uid) => ({
+        uid,
+        ...users[uid],
+      }));
+
+      callback(filteredUsers);
     } else {
       callback(null);
     }
@@ -91,12 +98,24 @@ export const updateEstadoUsuario = (estado: boolean, idUsuario: string) => {
 };
 
 export const updateEstaDigitando = (estado: boolean, idUsuario: string) => {
+  debugger
   const firebaseDb = getDatabase();
   const userRef = ref(firebaseDb, 'users/' + idUsuario);
 
   update(userRef, {
     digitando: estado,
   })
+};
+
+export const updatePerfilUsuario = async (usuario) => {
+  debugger
+  const auth = getAuth();
+
+  if (auth.currentUser) {
+    await updateProfile(auth.currentUser, {
+      displayName: usuario.nome,
+    });
+  }
 };
 
 export const getBatePapoPorId = (idRemetente: string, idDestinatario: string, callback) => {

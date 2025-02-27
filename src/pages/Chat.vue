@@ -28,7 +28,7 @@
           label="Mensagem"
           dense
           @keydown.enter.prevent="enviarMensagem"
-          @update:model-value="digitando"
+          @update:model-value="usuarioDigitando"
         >
           <template v-slot:after>
             <q-btn
@@ -97,6 +97,7 @@ export default defineComponent({
     async buscarMensagens(): Promise<void> {
       this.loadingChat = true
 
+      debugger
       buscarMensagens(this.getUsuarioDestinatario.uid, this.getUsuarioLogado.uid, (callback) => {
         if (callback) {
           this.mensagens = converterObjetoEmArray(callback)
@@ -128,7 +129,8 @@ export default defineComponent({
       })
     },
 
-    digitando() {
+    usuarioDigitando(): void {
+      debugger
       updateEstaDigitando(true, this.getUsuarioLogado.uid)
 
       // Limpa o timeout anterior

@@ -79,14 +79,14 @@ export default defineComponent({
 
     getTituloPagina(): string {
       if (this.getInformacoesOutroUsuario) {
-        return this.getInformacoesOutroUsuario.name
+        return this.getInformacoesOutroUsuario.nome
       }
 
       if (this.getInformacoesUsuarioLogado && this.$route.path !== '/') {
-        return this.getInformacoesUsuarioLogado.name
+        return this.getInformacoesUsuarioLogado.nome
       }
 
-      return this.$route.matched.slice(1)[0].meta.tituloPagina
+      return 'Chat App'
     },
 
     isChat(): boolean {

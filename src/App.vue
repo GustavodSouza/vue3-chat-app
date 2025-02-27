@@ -26,27 +26,24 @@ export default defineComponent({
   },
 
   mounted() {
+    // // Acionado todo momento em que há alteração na base
     changeEstadoAutenticacao((usuario) => {
-      console.log('Opaaa')
       const auth = getAuth()
 
+      debugger
       if (usuario) {
         const currentUser = auth.currentUser
         const userId = currentUser?.uid
 
-        getUsuarioPorId(userId, (callback) => {
-          const payload = {
-            email: callback ? callback.email : currentUser.email,
-            displayName: callback ? callback.name : '',
-            uid: userId,
-          }
-
-          this.usuarioStoreInstance.setUsuarioLogado(payload)
-
+        if (currentUser) {
           updateEstadoUsuario(true, userId)
+        }
+
+        getUsuarioPorId(userId, (callback) => {
+          this.usuarioStoreInstance.setUsuarioLogado(callback)
         })
+        
       } else {
-        debugger
         // Ao realizar o logout verifica o uid do usuário que estava logado
         if (this.usuarioStoreInstance.getUsuarioLogado.uid) {
           // Então atualiza seu status para offline
@@ -55,5 +52,9 @@ export default defineComponent({
       }
     })
   },
+
+  unmounted() {
+    updateEstadoUsuario(false, this.usuarioStoreInstance.getUsuarioLogado.uid)
+  }
 })
 </script>
