@@ -68,7 +68,7 @@ export const storeChat = defineStore('store', {
               online: true,
             })
           } else {
-            console.log('Usuário não autenticado')
+            console.error('Usuário não autenticado')
           }
         })
         .catch((error) => {
@@ -83,7 +83,6 @@ export const storeChat = defineStore('store', {
 
       await signInWithEmailAndPassword(auth, novoUsuario.email, novoUsuario.senha)
         .then((response) => {
-          console.log(response)
           sucesso = true
         })
         .catch((error) => {

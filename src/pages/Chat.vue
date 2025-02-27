@@ -103,10 +103,8 @@ export default defineComponent({
     async buscarMensagens(): Promise<void> {
       this.loadingChat = true;
 
-      debugger
       buscarMensagens(this.$route.params.idOutroUsuario, this.getUsuarioLogado.uid, (callback) => {
         if (callback) {
-          console.log(converterObjetoEmArray(callback))
           this.chatStoreInstance.setMensagens(converterObjetoEmArray(callback));
         }
 
@@ -137,7 +135,6 @@ export default defineComponent({
     },
 
     usuarioDigitando(): void {
-      debugger
       updateEstaDigitando(true, this.getUsuarioLogado.uid)
 
       // Limpa o timeout anterior
