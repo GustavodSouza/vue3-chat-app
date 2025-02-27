@@ -82,7 +82,7 @@ export const storeChat = defineStore('store', {
       let sucesso = false
 
       await signInWithEmailAndPassword(auth, novoUsuario.email, novoUsuario.senha)
-        .then((response) => {
+        .then(() => {
           sucesso = true
         })
         .catch((error) => {
